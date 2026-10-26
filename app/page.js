@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 
-const emptyForm = { name: '', description: '', price: '' };
+const emptyForm = { name: '', category_id: '', description: '', price: '' };
 
 export default function Home() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,8 +28,20 @@ export default function Home() {
     }
   }
 
+  async function loadCategories() {
+    try {
+      const res = await fetch('/api/categories');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Gagal memuat kategori');
+      setCategories(data);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   useEffect(() => {
     loadProducts();
+    loadCategories();
   }, []);
 
   function handleChange(e) {
@@ -40,6 +53,7 @@ export default function Home() {
     setEditingId(product.id);
     setForm({
       name: product.name,
+      category_id: product.category_id ?? '',
       description: product.description || '',
       price: product.price,
     });
@@ -113,6 +127,23 @@ export default function Home() {
           </div>
 
           <div className="form-row">
+            <label htmlFor="category_id">Kategori</label>
+            <select
+              id="category_id"
+              name="category_id"
+              value={form.category_id}
+              onChange={handleChange}
+            >
+              <option value="">-- Tanpa kategori --</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-row">
             <label htmlFor="description">Deskripsi</label>
             <textarea
               id="description"
@@ -160,6 +191,7 @@ export default function Home() {
         <thead>
           <tr>
             <th>Nama</th>
+            <th>Kategori</th>
             <th>Deskripsi</th>
             <th>Harga</th>
             <th>Aksi</th>
@@ -169,6 +201,7 @@ export default function Home() {
           {products.map((p) => (
             <tr key={p.id}>
               <td>{p.name}</td>
+              <td>{p.category_name || '-'}</td>
               <td>{p.description}</td>
               <td>Rp {Number(p.price).toLocaleString('id-ID')}</td>
               <td>

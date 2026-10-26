@@ -10,6 +10,7 @@ dengan database di Aiven.
 app/
   api/products/route.js         -> GET (list), POST (create)
   api/products/[id]/route.js    -> GET (detail), PUT (update), DELETE
+  api/categories/route.js       -> GET (list, dipakai untuk dropdown kategori)
   page.js                       -> Halaman utama (tabel + form)
   layout.js
   globals.css
